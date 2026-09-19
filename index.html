@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Révisia — Fiches de révision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f6fb; --surface:#ffffff; --surface-alt:#eef1fb; --text:#1c1f2e; --text-muted:#5b6072;
+    --border:#e1e4f0; --primary:#5b5bf6; --primary-dark:#4444d6; --primary-soft:#eceafe;
+    --accent:#ff8a5b; --accent-soft:#ffe9dd; --success:#2fb380; --success-soft:#e2f7ee;
+    --danger:#e5484d; --danger-soft:#fde3e4; --shadow: 0 8px 24px rgba(40,40,90,0.08); --radius: 18px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12131c; --surface:#1b1d29; --surface-alt:#242637; --text:#eef0fa; --text-muted:#a3a7bd;
+      --border:#31344a; --primary:#8484ff; --primary-dark:#6c6cff; --primary-soft:#2a2a52;
+      --accent:#ff9d73; --accent-soft:#3a2a24; --success:#4fd39d; --success-soft:#173327;
+      --danger:#ff6b6f; --danger-soft:#3a1f21; --shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:'Inter', system-ui, sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,.brand{ font-family:'Fredoka', 'Inter', sans-serif; }
+  #app{ max-width:720px; margin:0 auto; padding:20px 16px 80px; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 4px 22px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-size:1.35rem; font-weight:700; color:var(--primary-dark); }
+  .brand .logo{ width:38px;height:38px;border-radius:12px; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex;align-items:center;justify-content:center;font-size:1.2rem; }
+  .userchip{ display:flex; align-items:center; gap:10px; font-size:0.9rem; color:var(--text-muted); }
+  .avatar{ width:32px;height:32px;border-radius:50%; background:var(--primary-soft); color:var(--primary-dark); display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem; }
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); }
+  .card + .card{ margin-top:16px; }
+  input[type=text], input[type=password], textarea{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:var(--surface-alt); color:var(--text); font-family:inherit; font-size:0.98rem; outline:none; transition:border-color .15s; }
+  input:focus, textarea:focus{ border-color:var(--primary); }
+  textarea{ resize:vertical; min-height:110px; line-height:1.5; }
+  label{ display:block; font-size:0.85rem; font-weight:600; color:var(--text-muted); margin:14px 0 6px; }
+  label:first-child{ margin-top:0; }
+  button{ font-family:inherit; cursor:pointer; border:none; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 20px; border-radius:14px; font-weight:600; font-size:0.95rem; background:var(--primary); color:#fff; transition:transform .1s, background .15s; width:100%; }
+  .btn:hover{ background:var(--primary-dark); }
+  .btn:active{ transform:scale(0.98); }
+  .btn:disabled{ opacity:0.55; cursor:not-allowed; transform:none; }
+  .btn.secondary{ background:var(--surface-alt); color:var(--text); border:1px solid var(--border); }
+  .btn.secondary:hover{ background:var(--border); }
+  .btn.ghost{ background:transparent; color:var(--primary-dark); width:auto; padding:8px 10px; }
+  .btn.danger{ background:var(--danger-soft); color:var(--danger); width:auto; padding:8px 12px; }
+  .btn.small{ width:auto; padding:8px 14px; font-size:0.85rem; }
+  .row{ display:flex; gap:10px; }
+  .row > *{ flex:1; }
+  .tabs{ display:flex; gap:6px; background:var(--surface-alt); padding:5px; border-radius:14px; margin-bottom:18px; }
+  .tab{ flex:1; text-align:center; padding:10px; border-radius:10px; font-weight:600; font-size:0.9rem; background:transparent; color:var(--text-muted); }
+  .tab.active{ background:var(--surface); color:var(--primary-dark); box-shadow:0 2px 6px rgba(0,0,0,0.06); }
+  .muted{ color:var(--text-muted); font-size:0.88rem; }
+  .error-msg{ background:var(--danger-soft); color:var(--danger); padding:10px 14px; border-radius:10px; font-size:0.88rem; margin-top:10px; }
+  .info-msg{ background:var(--primary-soft); color:var(--primary-dark); padding:10px 14px; border-radius:10px; font-size:0.85rem; margin-bottom:14px; }
+  .photo-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(84px,1fr)); gap:10px; margin:14px 0; }
+  .photo-thumb{ position:relative; aspect-ratio:1; border-radius:12px; overflow:hidden; border:1px solid var(--border); }
+  .photo-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .photo-thumb .rm{ position:absolute; top:4px; right:4px; width:22px;height:22px; border-radius:50%; background:rgba(0,0,0,0.55); color:#fff; font-size:0.8rem; display:flex; align-items:center; justify-content:center; }
+  .photo-thumb .idx{ position:absolute; bottom:4px; left:4px; background:rgba(0,0,0,0.55); color:#fff; font-size:0.68rem; padding:1px 6px; border-radius:6px; }
+  .add-photo-btn{ aspect-ratio:1; border-radius:12px; border:2px dashed var(--border); background:var(--surface-alt); display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.75rem; gap:4px; }
+  .divider{ display:flex; align-items:center; gap:10px; margin:18px 0; color:var(--text-muted); font-size:0.8rem; }
+  .divider::before,.divider::after{ content:""; flex:1; height:1px; background:var(--border); }
+  .progress-box{ text-align:center; padding:26px 10px; }
+  .spinner{ width:34px;height:34px;border-radius:50%; margin:0 auto 14px; border:3px solid var(--border); border-top-color:var(--primary); animation:spin 0.8s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .sheet-content{ line-height:1.6; font-size:0.96rem; }
+  .sheet-content h1{ font-size:1.3rem; margin:0 0 10px; color:var(--primary-dark); }
+  .sheet-content h2{ font-size:1.1rem; margin:18px 0 8px; color:var(--primary-dark); }
+  .sheet-content h3{ font-size:1rem; margin:14px 0 6px; }
+  .sheet-content ul, .sheet-content ol{ padding-left:22px; margin:6px 0; }
+  .sheet-content li{ margin:4px 0; }
+  .sheet-content p{ margin:8px 0; }
+  .sheet-content strong{ color:var(--text); }
+  .inv-item{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 6px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .inv-item:last-child{ border-bottom:none; }
+  .inv-item:hover{ background:var(--surface-alt); border-radius:10px; }
+  .inv-title{ font-weight:600; font-size:0.95rem; }
+  .inv-date{ font-size:0.78rem; color:var(--text-muted); }
+  .empty-state{ text-align:center; padding:40px 10px; color:var(--text-muted); }
+  .empty-state .em{ font-size:2.4rem; margin-bottom:10px; }
+  .top-actions{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .back-link{ color:var(--text-muted); font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:4px; background:none; }
+  .hidden{ display:none !important; }
+  a{ color:var(--primary-dark); }
+  .toggle-auth{ text-align:center; margin-top:16px; font-size:0.9rem; color:var(--text-muted); }
+  .toggle-auth button{ background:none; color:var(--primary); font-weight:700; }
+  .warn-banner{ background:var(--accent-soft); color:#8a4a1f; padding:10px 14px; border-radius:10px; font-size:0.82rem; margin-bottom:16px; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .warn-banner{ color:var(--accent); } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand"><span class="logo">📚</span> Révisia</div>
+    <div id="userchip-slot"></div>
+  </div>
+
+  <div id="view-auth" class="card hidden">
+    <h2 id="auth-title" style="margin-top:0;">Connexion</h2>
+    <p class="muted" id="auth-sub">Connecte-toi pour retrouver tes fiches de révision.</p>
+    <div class="warn-banner">⚠️ Compte simple propre à cet appareil/navigateur (non synchronisé ailleurs). Utilise toujours le même appareil et navigateur pour retrouver tes fiches.</div>
+    <label for="auth-username">Nom d'utilisateur</label>
+    <input type="text" id="auth-username" autocomplete="username" placeholder="ex : marie.d">
+    <label for="auth-password">Mot de passe</label>
+    <input type="password" id="auth-password" autocomplete="current-password" placeholder="••••••••">
+    <div id="auth-error" class="error-msg hidden"></div>
+    <div style="margin-top:18px;"><button class="btn" id="auth-submit">Se connecter</button></div>
+    <div class="toggle-auth">
+      <span id="auth-toggle-text">Pas encore de compte ?</span>
+      <button id="auth-toggle-btn" type="button">Créer un compte</button>
+    </div>
+  </div>
+
+  <div id="view-home" class="hidden">
+    <div class="tabs">
+      <button class="tab" id="tab-new" data-tab="new">➕ Nouvelle fiche</button>
+      <button class="tab" id="tab-inv" data-tab="inv">🗂️ Mon inventaire</button>
+    </div>
+
+    <div id="view-new" class="hidden">
+      <div class="card">
+        <h2 style="margin-top:0;">Créer une fiche de révision</h2>
+        <label for="lesson-title">Titre / matière du cours</label>
+        <input type="text" id="lesson-title" placeholder="ex : Histoire — La Révolution française">
+
+        <label>Photos du cours <span class="muted" style="font-weight:400;">(autant que nécessaire selon la longueur du cours, 12 max par fiche)</span></label>
+        <div class="photo-grid" id="photo-grid">
+          <button type="button" class="add-photo-btn" id="add-photo-btn"><span style="font-size:1.4rem;">📷</span> Ajouter</button>
+        </div>
+        <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;">
+
+        <div class="divider">et / ou</div>
+
+        <label for="lesson-text">Coller ou écrire le texte du cours</label>
+        <textarea id="lesson-text" placeholder="Tu peux aussi coller ici le texte de ton cours, en complément ou à la place des photos."></textarea>
+
+        <div id="new-error" class="error-msg hidden"></div>
+        <div style="margin-top:18px;"><button class="btn" id="generate-btn">✨ Générer ma fiche de révision</button></div>
+      </div>
+
+      <div id="progress-card" class="card hidden">
+        <div class="progress-box"><div class="spinner"></div><div id="progress-label" class="muted">Préparation…</div></div>
+      </div>
+
+      <div id="result-card" class="card hidden">
+        <div class="top-actions"><h3 style="margin:0;">📝 Ta fiche de révision</h3></div>
+        <div class="sheet-content" id="result-content"></div>
+        <div class="row" style="margin-top:18px;">
+          <button class="btn secondary small" id="download-btn">⬇️ Télécharger (.md)</button>
+          <button class="btn small" id="newone-btn">➕ Nouvelle fiche</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-inv" class="hidden">
+      <div class="card"><h2 style="margin-top:0;">Mes fiches de révision</h2><div id="inv-list"></div></div>
+    </div>
+
+    <div id="view-sheet-detail" class="hidden">
+      <div class="top-actions"><button class="back-link" id="sheet-back">← Retour à l'inventaire</button></div>
+      <div class="card">
+        <div class="sheet-content" id="sheet-detail-content"></div>
+        <div class="row" style="margin-top:18px;">
+          <button class="btn secondary small" id="sheet-download-btn">⬇️ Télécharger (.md)</button>
+          <button class="btn danger small" id="sheet-delete-btn">🗑️ Supprimer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Adresse de la fonction serveur qui appelle l'IA.
+  // Par défaut : chemin relatif "/api/generate" (fonctionne si le frontend
+  // et la fonction sont déployés ensemble, ex. sur Vercel).
+  const API_ENDPOINT = "/api/generate";
+
+  const LS_USERS = "revisia_users_v1";
+  const LS_CURRENT = "revisia_current_user_v1";
+  const LS_SHEETS_PREFIX = "revisia_sheets_v1_";
+  const MAX_PHOTOS = 12;
+  const MAX_IMAGE_DIM = 1200;
+  const JPEG_QUALITY = 0.72;
+
+  function safeGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function safeSet(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }
+  function loadUsers(){ try{ return JSON.parse(safeGet(LS_USERS)||"{}"); }catch(e){ return {}; } }
+  function saveUsers(u){ safeSet(LS_USERS, JSON.stringify(u)); }
+  function loadSheets(u){ try{ return JSON.parse(safeGet(LS_SHEETS_PREFIX+u)||"[]"); }catch(e){ return []; } }
+  function saveSheets(u,arr){ safeSet(LS_SHEETS_PREFIX+u, JSON.stringify(arr)); }
+
+  async function hashPassword(pw){
+    try{
+      const enc = new TextEncoder().encode(pw);
+      const buf = await crypto.subtle.digest("SHA-256", enc);
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+    }catch(e){
+      let h=0; for(let i=0;i<pw.length;i++){ h=(h*31+pw.charCodeAt(i))|0; }
+      return "fallback_"+h;
+    }
+  }
+
+  let currentUser = null;
+  let isSignupMode = false;
+  let photos = []; // {blob, url, mediaType, base64}
+
+  const el = (id)=>document.getElementById(id);
+  const viewAuth = el("view-auth"), viewHome = el("view-home"), viewNew = el("view-new"),
+        viewInv = el("view-inv"), viewSheetDetail = el("view-sheet-detail"), userchipSlot = el("userchip-slot");
+
+  function show(e){ e.classList.remove("hidden"); }
+  function hide(e){ e.classList.add("hidden"); }
+  function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+  function mdToHtml(md){
+    const lines = (md||"").replace(/\r\n/g,"\n").split("\n");
+    let html="", inUl=false, inOl=false;
+    function closeLists(){ if(inUl){html+="</ul>";inUl=false;} if(inOl){html+="</ol>";inOl=false;} }
+    function inline(t){
+      t=escapeHtml(t);
+      t=t.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+      t=t.replace(/\*(.+?)\*/g,"<em>$1</em>");
+      t=t.replace(/`(.+?)`/g,"<code>$1</code>");
+      return t;
+    }
+    for(let raw of lines){
+      const line = raw.trim(); let m;
+      if(line===""){ closeLists(); continue; }
+      if((m=line.match(/^###\s+(.*)/))){ closeLists(); html+="<h3>"+inline(m[1])+"</h3>"; continue; }
+      if((m=line.match(/^##\s+(.*)/))){ closeLists(); html+="<h2>"+inline(m[1])+"</h2>"; continue; }
+      if((m=line.match(/^#\s+(.*)/))){ closeLists(); html+="<h1>"+inline(m[1])+"</h1>"; continue; }
+      if((m=line.match(/^[-*]\s+(.*)/))){ if(!inUl){closeLists();html+="<ul>";inUl=true;} html+="<li>"+inline(m[1])+"</li>"; continue; }
+      if((m=line.match(/^\d+[.)]\s+(.*)/))){ if(!inOl){closeLists();html+="<ol>";inOl=true;} html+="<li>"+inline(m[1])+"</li>"; continue; }
+      closeLists(); html+="<p>"+inline(line)+"</p>";
+    }
+    closeLists();
+    return html;
+  }
+
+  // ---------- Auth ----------
+  function renderUserchip(){
+    if(currentUser){
+      userchipSlot.innerHTML =
+        '<div class="userchip"><div class="avatar">'+escapeHtml(currentUser[0].toUpperCase())+'</div>'+
+        '<span>'+escapeHtml(currentUser)+'</span>'+
+        '<button class="btn ghost small" id="logout-btn">Déconnexion</button></div>';
+      el("logout-btn").onclick = logout;
+    } else { userchipSlot.innerHTML = ""; }
+  }
+  function logout(){ currentUser=null; safeSet(LS_CURRENT,""); renderUserchip(); hide(viewHome); show(viewAuth); }
+
+  function setAuthMode(signup){
+    isSignupMode = signup;
+    el("auth-title").textContent = signup ? "Créer un compte" : "Connexion";
+    el("auth-sub").textContent = signup ? "Choisis un nom d'utilisateur et un mot de passe." : "Connecte-toi pour retrouver tes fiches de révision.";
+    el("auth-submit").textContent = signup ? "Créer mon compte" : "Se connecter";
+    el("auth-toggle-text").textContent = signup ? "Déjà un compte ?" : "Pas encore de compte ?";
+    el("auth-toggle-btn").textContent = signup ? "Se connecter" : "Créer un compte";
+    hide(el("auth-error"));
+  }
+  el("auth-toggle-btn").onclick = ()=>setAuthMode(!isSignupMode);
+
+  el("auth-submit").onclick = async ()=>{
+    const username = el("auth-username").value.trim();
+    const password = el("auth-password").value;
+    const errBox = el("auth-error");
+    hide(errBox);
+    if(!username || !password){ errBox.textContent="Merci de remplir le nom d'utilisateur et le mot de passe."; show(errBox); return; }
+    const users = loadUsers();
+    const hash = await hashPassword(password);
+    if(isSignupMode){
+      if(users[username]){ errBox.textContent="Ce nom d'utilisateur existe déjà sur cet appareil."; show(errBox); return; }
+      users[username] = { passHash: hash, createdAt: Date.now() };
+      saveUsers(users); loginAs(username);
+    } else {
+      if(!users[username] || users[username].passHash !== hash){ errBox.textContent="Nom d'utilisateur ou mot de passe incorrect."; show(errBox); return; }
+      loginAs(username);
+    }
+  };
+
+  function loginAs(username){
+    currentUser = username; safeSet(LS_CURRENT, username);
+    renderUserchip(); hide(viewAuth); show(viewHome); switchTab("new");
+  }
+
+  function switchTab(name){
+    el("tab-new").classList.toggle("active", name==="new");
+    el("tab-inv").classList.toggle("active", name==="inv");
+    hide(viewNew); hide(viewInv); hide(viewSheetDetail);
+    if(name==="new") show(viewNew);
+    if(name==="inv"){ show(viewInv); renderInventory(); }
+  }
+  el("tab-new").onclick = ()=>switchTab("new");
+  el("tab-inv").onclick = ()=>switchTab("inv");
+
+  // ---------- Photos ----------
+  const photoGrid = el("photo-grid"), addPhotoBtn = el("add-photo-btn"), photoInput = el("photo-input");
+  addPhotoBtn.onclick = ()=>photoInput.click();
+
+  function resizeImageFile(file){
+    return new Promise((resolve, reject)=>{
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = ()=>{
+        let { width, height } = img;
+        const scale = Math.min(1, MAX_IMAGE_DIM / Math.max(width, height));
+        width = Math.round(width*scale); height = Math.round(height*scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob)=>{
+          if(!blob){ reject(new Error("Compression impossible")); return; }
+          const reader = new FileReader();
+          reader.onload = ()=>{
+            const dataUrl = reader.result;
+            const base64 = dataUrl.split(",")[1];
+            resolve({ blob, url: URL.createObjectURL(blob), mediaType: "image/jpeg", base64 });
+            URL.revokeObjectURL(url);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        }, "image/jpeg", JPEG_QUALITY);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  photoInput.onchange = async (e)=>{
+    const file = e.target.files && e.target.files[0];
+    photoInput.value = "";
+    if(!file) return;
+    if(photos.length >= MAX_PHOTOS){
+      showNewError("Tu as atteint le nombre maximum de photos par fiche ("+MAX_PHOTOS+"). Génère une première fiche, puis continue avec une nouvelle fiche pour la suite du cours.");
+      return;
+    }
+    try{
+      const processed = await resizeImageFile(file);
+      photos.push(processed);
+      renderPhotoGrid();
+    }catch(err){ showNewError("Cette photo n'a pas pu être chargée. Réessaie."); }
+  };
+
+  function renderPhotoGrid(){
+    photoGrid.querySelectorAll(".photo-thumb").forEach(n=>n.remove());
+    photos.forEach((p,i)=>{
+      const div = document.createElement("div");
+      div.className = "photo-thumb";
+      div.innerHTML = '<img src="'+p.url+'" alt="photo '+(i+1)+'"><div class="idx">'+(i+1)+'</div><div class="rm">✕</div>';
+      div.querySelector(".rm").onclick = ()=>{ photos.splice(i,1); renderPhotoGrid(); };
+      photoGrid.insertBefore(div, addPhotoBtn);
+    });
+  }
+
+  function showNewError(msg){ const box = el("new-error"); box.textContent = msg; show(box); }
+  function hideNewError(){ hide(el("new-error")); }
+  function setProgress(t){ el("progress-label").textContent = t; }
+
+  function friendlyServerError(status, body){
+    if(status === 0) return "Impossible de contacter le serveur de génération. Vérifie que la fonction /api/generate est bien déployée.";
+    if(status === 400) return "Requête invalide : ajoute au moins une photo ou du texte.";
+    if(status === 500) return "Le serveur n'est pas configuré correctement (clé API manquante). Contacte l'administrateur du site.";
+    if(status === 502) return "Le service d'IA n'a pas pu traiter la demande. Réessaie dans un instant.";
+    return "Une erreur est survenue pendant la génération. Réessaie.";
+  }
+
+  // ---------- Génération ----------
+  el("generate-btn").onclick = async ()=>{
+    hideNewError();
+    const title = el("lesson-title").value.trim() || "Fiche de révision";
+    const pastedText = el("lesson-text").value.trim();
+
+    if(photos.length === 0 && !pastedText){
+      showNewError("Ajoute au moins une photo du cours ou colle le texte du cours.");
+      return;
+    }
+
+    el("generate-btn").disabled = true;
+    show(el("progress-card")); hide(el("result-card"));
+    setProgress("Envoi au serveur…");
+
+    try{
+      const payload = {
+        title,
+        text: pastedText,
+        images: photos.map(p=>({ mediaType: p.mediaType, data: p.base64 }))
+      };
+      setProgress("Génération de la fiche par l'IA… (cela peut prendre 10 à 40 secondes)");
+      const resp = await fetch(API_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if(!resp.ok){
+        let body = null;
+        try{ body = await resp.json(); }catch(e){}
+        throw { status: resp.status, body };
+      }
+      const data = await resp.json();
+      const resultText = data.text || "";
+      if(!resultText){ throw { status: 502, body: null }; }
+
+      const sheet = {
+        id: "sheet_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),
+        title, createdAt: Date.now(), content: resultText
+      };
+      const sheets = loadSheets(currentUser);
+      sheets.unshift(sheet);
+      saveSheets(currentUser, sheets);
+
+      hide(el("progress-card")); show(el("result-card"));
+      el("result-content").innerHTML = mdToHtml(resultText);
+      el("download-btn").onclick = ()=>downloadSheet(sheet);
+
+      photos.forEach(p=>URL.revokeObjectURL(p.url));
+      photos = []; renderPhotoGrid();
+
+    }catch(err){
+      hide(el("progress-card"));
+      const status = (err && err.status) || 0;
+      showNewError(friendlyServerError(status, err && err.body));
+    }finally{
+      el("generate-btn").disabled = false;
+    }
+  };
+
+  el("newone-btn").onclick = ()=>{ hide(el("result-card")); el("lesson-title").value=""; el("lesson-text").value=""; };
+
+  function downloadSheet(sheet){
+    try{
+      const blob = new Blob([sheet.content], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = (sheet.title || "fiche-revision").replace(/[^\w\-\s]/g,"").trim().slice(0,60) + ".md";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    }catch(e){}
+  }
+
+  // ---------- Inventaire ----------
+  function renderInventory(){
+    const list = el("inv-list");
+    const sheets = loadSheets(currentUser);
+    if(sheets.length === 0){
+      list.innerHTML = '<div class="empty-state"><div class="em">🗂️</div>Aucune fiche pour l\'instant.<br>Crée ta première fiche de révision !</div>';
+      return;
+    }
+    list.innerHTML = "";
+    sheets.forEach(sheet=>{
+      const d = new Date(sheet.createdAt);
+      const dateStr = d.toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
+      const item = document.createElement("div");
+      item.className = "inv-item";
+      item.innerHTML = '<div><div class="inv-title">'+escapeHtml(sheet.title)+'</div><div class="inv-date">'+dateStr+'</div></div><div>›</div>';
+      item.onclick = ()=>openSheetDetail(sheet.id);
+      list.appendChild(item);
+    });
+  }
+
+  function openSheetDetail(id){
+    const sheets = loadSheets(currentUser);
+    const sheet = sheets.find(s=>s.id===id);
+    if(!sheet) return;
+    hide(viewInv); show(viewSheetDetail);
+    el("sheet-detail-content").innerHTML = mdToHtml(sheet.content);
+    el("sheet-download-btn").onclick = ()=>downloadSheet(sheet);
+    el("sheet-delete-btn").onclick = ()=>{
+      const remaining = loadSheets(currentUser).filter(s=>s.id!==id);
+      saveSheets(currentUser, remaining);
+      hide(viewSheetDetail); show(viewInv); renderInventory();
+    };
+  }
+  el("sheet-back").onclick = ()=>{ hide(viewSheetDetail); show(viewInv); renderInventory(); };
+
+  // ---------- Démarrage ----------
+  function boot(){
+    setAuthMode(false);
+    const saved = safeGet(LS_CURRENT);
+    if(saved){
+      const users = loadUsers();
+      if(users[saved]) loginAs(saved); else show(viewAuth);
+    } else { show(viewAuth); }
+  }
+  boot();
+})();
+</script>
+</body>
+</html>

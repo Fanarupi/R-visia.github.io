@@ -1,0 +1,6 @@
+{
+  "name": "revisia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site de fiches de révision généré à partir de photos de cours."
+}
